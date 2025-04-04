@@ -8,14 +8,21 @@ import {AuthUserType} from "../@types"
 interface AuthType {
     authUser: AuthUserType | null
     isLoginLoading: boolean
+    isSigninLoading: boolean
     isCheckingUserLoader: boolean
     signIn: (data: {email: string; password: string}) => Promise<void>
+    signUp: (data: {
+        fullName: string
+        email: string
+        password: string
+    }) => Promise<void>
     checkUser: () => Promise<void>
 }
 
 export const useAuthStore = create<AuthType>((set) => ({
     authUser: null,
     isLoginLoading: false,
+    isSigninLoading: false,
     isCheckingUserLoader: false,
 
     checkUser: async () => {
@@ -46,6 +53,7 @@ export const useAuthStore = create<AuthType>((set) => ({
                 authUser: res.data.user,
                 isLoginLoading: false,
             })
+            toast.success("You have successfully signed in")
         } catch (error) {
             if (error instanceof AxiosError) {
                 if (
@@ -59,6 +67,29 @@ export const useAuthStore = create<AuthType>((set) => ({
             set({isLoginLoading: false})
         } finally {
             set({isLoginLoading: false})
+        }
+    },
+
+    signUp: async (data) => {
+        set({isSigninLoading: true})
+        try {
+            await axiosInstance.post("auth/sign-up", data)
+            toast.success("You have successfully signed up")
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                if (
+                    error.response &&
+                    error.response.data.message &&
+                    error.response.data
+                ) {
+                    toast.error(
+                        error.response.data.message ||
+                            "Something went wrong, please try again"
+                    )
+                }
+            }
+        } finally {
+            set({isSigninLoading: false})
         }
     },
 }))

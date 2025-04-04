@@ -28,16 +28,7 @@ const App = () => {
         <>
             <Toaster position="top-center" reverseOrder={false} />
             <Routes>
-                <Route
-                    path="/"
-                    element={
-                        authUser ? (
-                            <Home />
-                        ) : (
-                            <Navigate to={"/sign-in"} replace />
-                        )
-                    }
-                />
+                <Route path="/" element={<Home />} />
 
                 <Route
                     path="/sign-in"
