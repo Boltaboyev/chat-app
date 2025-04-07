@@ -15,7 +15,7 @@ import Navbar from "./components/navbar"
 import {useThemeStore} from "./store/useThemeStore"
 
 const App = () => {
-    const {checkUser, authUser, isCheckingUserLoader} = useAuthStore()
+    const {checkUser, isCheckingUserLoader} = useAuthStore()
     const {theme} = useThemeStore()
 
     useEffect(() => {
