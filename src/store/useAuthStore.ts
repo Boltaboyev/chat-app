@@ -1,8 +1,8 @@
 import {create} from "zustand"
-import toast from "react-hot-toast"
-import {axiosInstance} from "../lib"
 import {AxiosError} from "axios"
+import toast from "react-hot-toast"
 
+import {axiosInstance} from "../lib"
 import {AuthUserType} from "../@types"
 
 interface AuthType {
@@ -10,6 +10,7 @@ interface AuthType {
     isLoginLoading: boolean
     isSigninLoading: boolean
     isCheckingUserLoader: boolean
+    imgUploadLoading: boolean
     signIn: (data: {email: string; password: string}) => Promise<void>
     signUp: (data: {
         fullName: string
@@ -17,6 +18,8 @@ interface AuthType {
         password: string
     }) => Promise<void>
     checkUser: () => Promise<void>
+    updatePhoto: (data: any) => Promise<void>
+    logOut: () => Promise<void>
 }
 
 export const useAuthStore = create<AuthType>((set) => ({
@@ -24,6 +27,7 @@ export const useAuthStore = create<AuthType>((set) => ({
     isLoginLoading: false,
     isSigninLoading: false,
     isCheckingUserLoader: false,
+    imgUploadLoading: false,
 
     checkUser: async () => {
         set({isCheckingUserLoader: true})
@@ -90,6 +94,38 @@ export const useAuthStore = create<AuthType>((set) => ({
             }
         } finally {
             set({isSigninLoading: false})
+        }
+    },
+
+    updatePhoto: async (data) => {
+        set({imgUploadLoading: true})
+        try {
+            const res = await axiosInstance.post("/auth/update-photo", data)
+            set({authUser: res.data.data})
+        } catch (error) {
+        } finally {
+            set({imgUploadLoading: false})
+        }
+    },
+
+    logOut: async () => {
+        try {
+            await axiosInstance.post("/auth/logout")
+            toast.success("Log out successful")
+            set({authUser: null})
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                if (
+                    error.response &&
+                    error.response.data.message &&
+                    error.response.data
+                ) {
+                    toast.error(
+                        error.response.data.message ||
+                            "Something went wrong, please try again"
+                    )
+                }
+            }
         }
     },
 }))

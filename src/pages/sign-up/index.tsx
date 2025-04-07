@@ -10,7 +10,7 @@ import {
     MessageSquare,
     User,
 } from "lucide-react"
-import {Link} from "react-router-dom"
+import {Link, useNavigate} from "react-router-dom"
 import {useAuthStore} from "../../store/useAuthStore"
 
 interface FormData {
@@ -20,6 +20,8 @@ interface FormData {
 }
 
 const SignUp = () => {
+    const navigate = useNavigate()
+
     const {signUp, isSigninLoading} = useAuthStore()
 
     const [showPass, setShowPass] = useState<boolean>(false)
@@ -147,6 +149,9 @@ const SignUp = () => {
 
                     <button
                         disabled={isSigninLoading}
+                        onClick={() => {
+                            navigate("/")
+                        }}
                         type="submit"
                         className="btn btn-primary w-full">
                         {isSigninLoading ? (

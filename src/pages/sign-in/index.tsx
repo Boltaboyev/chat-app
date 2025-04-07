@@ -2,7 +2,7 @@ import React, {useState} from "react"
 import AuthImagePattern from "../../components/auth-image-side"
 
 import {Eye, EyeOff, Loader2, Lock, Mail, MessageSquare} from "lucide-react"
-import {Link} from "react-router-dom"
+import {Link, useNavigate} from "react-router-dom"
 import {useAuthStore} from "../../store/useAuthStore"
 
 interface FormData {
@@ -11,6 +11,7 @@ interface FormData {
 }
 
 const SignIn = () => {
+    const navigate = useNavigate()
     const {signIn, isLoginLoading} = useAuthStore()
 
     const [showPass, setShowPass] = useState<boolean>(false)
@@ -111,6 +112,7 @@ const SignIn = () => {
                     </div>
 
                     <button
+                        onClick={() => navigate("/")}
                         disabled={isLoginLoading}
                         type="submit"
                         className="btn btn-primary w-full">
