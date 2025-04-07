@@ -33,7 +33,7 @@ export const useAuthStore = create<AuthType>((set) => ({
         set({isCheckingUserLoader: true})
         try {
             const res = await axiosInstance.get("/auth/check")
-            set({authUser: res.data.user})
+            set({authUser: res.data.data})
         } catch (error) {
             if (error instanceof AxiosError) {
                 if (

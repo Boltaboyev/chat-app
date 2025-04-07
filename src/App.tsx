@@ -1,5 +1,5 @@
 import {useEffect} from "react"
-import {Route, Routes} from "react-router-dom"
+import {Navigate, Route, Routes} from "react-router-dom"
 import {Toaster} from "react-hot-toast"
 import {Loader} from "lucide-react"
 
@@ -15,7 +15,7 @@ import Navbar from "./components/navbar"
 import {useThemeStore} from "./store/useThemeStore"
 
 const App = () => {
-    const {checkUser, isCheckingUserLoader} = useAuthStore()
+    const {checkUser, isCheckingUserLoader, authUser} = useAuthStore()
     const {theme} = useThemeStore()
 
     useEffect(() => {
@@ -33,18 +33,45 @@ const App = () => {
     return (
         <main data-theme={theme}>
             <Toaster position="top-center" reverseOrder={false} />
-            <Navbar />
+            {authUser ? <Navbar /> : null}
 
             <Routes>
-                <Route path="/" element={<Home />} />
+                <Route
+                    path="/"
+                    element={
+                        authUser ? (
+                            <Home />
+                        ) : (
+                            <Navigate to={"/sign-in"} replace />
+                        )
+                    }
+                />
 
                 <Route path="/sign-in" element={<SignIn />} />
 
                 <Route path="/sign-up" element={<SignUp />} />
 
-                <Route path="/settings" element={<Settings />} />
+                <Route
+                    path="/settings"
+                    element={
+                        authUser ? (
+                            <Settings />
+                        ) : (
+                            <Navigate to={"/sign-in"} replace />
+                        )
+                    }
+                />
 
-                <Route path="/profile" element={<ProfilePage />} />
+                <Route
+                    path="/profile"
+                    element={
+                        authUser ? (
+                            <ProfilePage />
+                        ) : (
+                            <Navigate to={"/"} replace />
+                        )
+                    }
+                />
             </Routes>
         </main>
     )
