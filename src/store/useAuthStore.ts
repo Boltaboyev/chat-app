@@ -1,6 +1,7 @@
 import {create} from "zustand"
 import {AxiosError} from "axios"
 import toast from "react-hot-toast"
+import {io, Socket} from "socket.io-client"
 
 import {axiosInstance} from "../lib"
 import {AuthUserType} from "../@types"
@@ -20,20 +21,27 @@ interface AuthType {
     checkUser: () => Promise<void>
     updatePhoto: (data: any) => Promise<void>
     logOut: () => Promise<void>
+    onlineUsers: string[]
+    socket: Socket | null
+    connectSocket: () => void
+    disconnectSocket: () => void
 }
 
-export const useAuthStore = create<AuthType>((set) => ({
+export const useAuthStore = create<AuthType>((set, get) => ({
     authUser: null,
     isLoginLoading: false,
     isSigninLoading: false,
     isCheckingUserLoader: false,
     imgUploadLoading: false,
+    onlineUsers: [],
+    socket: null,
 
     checkUser: async () => {
         set({isCheckingUserLoader: true})
         try {
             const res = await axiosInstance.get("/auth/check")
             set({authUser: res.data.data})
+            get().connectSocket()
         } catch (error) {
             if (error instanceof AxiosError) {
                 if (
@@ -58,6 +66,7 @@ export const useAuthStore = create<AuthType>((set) => ({
                 isLoginLoading: false,
             })
             toast.success("You have successfully signed in")
+            get().connectSocket()
         } catch (error) {
             if (error instanceof AxiosError) {
                 if (
@@ -79,6 +88,7 @@ export const useAuthStore = create<AuthType>((set) => ({
         try {
             await axiosInstance.post("auth/sign-up", data)
             toast.success("You have successfully signed up")
+            get().connectSocket()
         } catch (error) {
             if (error instanceof AxiosError) {
                 if (
@@ -113,6 +123,7 @@ export const useAuthStore = create<AuthType>((set) => ({
             await axiosInstance.post("/auth/logout")
             toast.success("Log out successful")
             set({authUser: null})
+            get().disconnectSocket()
         } catch (error) {
             if (error instanceof AxiosError) {
                 if (
@@ -127,5 +138,26 @@ export const useAuthStore = create<AuthType>((set) => ({
                 }
             }
         }
+    },
+
+    connectSocket: () => {
+        const {authUser} = get()
+        if (!authUser || get().socket?.connected) return
+
+        const socket = io("https://chat-app-bb-tai4.onrender.com", {
+            query: {
+                userId: authUser._id,
+            },
+        })
+        socket.connect()
+
+        set({socket: socket})
+
+        socket.on("getOnlineUsers", (userIds) => {
+            set({onlineUsers: userIds})
+        })
+    },
+    disconnectSocket: () => {
+        if (get().socket?.connected) get().socket!.disconnect()
     },
 }))

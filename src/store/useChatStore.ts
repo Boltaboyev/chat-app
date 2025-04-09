@@ -1,6 +1,8 @@
 import {create} from "zustand"
 import toast from "react-hot-toast"
 import {axiosInstance} from "../lib"
+import {useAuthStore} from "./useAuthStore"
+import {AxiosError} from "axios"
 
 interface User {
     _id: string
@@ -46,8 +48,19 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         try {
             const res = await axiosInstance.get("/message/users")
             set({users: res.data.data})
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || "Xatolik yuz berdi")
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                if (
+                    error.response &&
+                    error.response.data.message &&
+                    error.response.data
+                ) {
+                    toast.error(
+                        error.response.data.message ||
+                            "Something went wrong, please try again"
+                    )
+                }
+            }
         } finally {
             set({isUsersLoading: false})
         }
@@ -58,8 +71,19 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         try {
             const res = await axiosInstance.get(`/message/${userId}`)
             set({messages: res.data.data})
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || "Xatolik yuz berdi")
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                if (
+                    error.response &&
+                    error.response.data.message &&
+                    error.response.data
+                ) {
+                    toast.error(
+                        error.response.data.message ||
+                            "Something went wrong, please try again"
+                    )
+                }
+            }
         } finally {
             set({isMessagesLoading: false})
         }
@@ -73,9 +97,42 @@ export const useChatStore = create<ChatStore>((set, get) => ({
                 messageData
             )
             set({messages: [...messages, res.data.data]})
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || "Xatolik yuz berdi")
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                if (
+                    error.response &&
+                    error.response.data.message &&
+                    error.response.data
+                ) {
+                    toast.error(
+                        error.response.data.message ||
+                            "Something went wrong, please try again"
+                    )
+                }
+            }
         }
+    },
+
+    subscribeToMessages: () => {
+        const {selectedUser} = get()
+        if (!selectedUser) return
+
+        const socket = useAuthStore.getState().socket
+
+        socket!.on("newMessage", (newMessage) => {
+            const isMessageSentFromSelectedUser =
+                newMessage.senderId === selectedUser._id
+            if (!isMessageSentFromSelectedUser) return
+
+            set({
+                messages: [...get().messages, newMessage],
+            })
+        })
+    },
+
+    unsubscribeFromMessages: () => {
+        const socket = useAuthStore.getState().socket
+        socket!.off("newMessage")
     },
 
     setSelectedUser: (selectedUser: User | null) => set({selectedUser}),
