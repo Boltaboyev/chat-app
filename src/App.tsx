@@ -1,5 +1,5 @@
 import {useEffect} from "react"
-import {Navigate, Route, Routes} from "react-router-dom"
+import {Route, Routes} from "react-router-dom"
 import {Toaster} from "react-hot-toast"
 import {Loader} from "lucide-react"
 
@@ -36,42 +36,15 @@ const App = () => {
             {authUser ? <Navbar /> : null}
 
             <Routes>
-                <Route
-                    path="/"
-                    element={
-                        authUser ? (
-                            <Home />
-                        ) : (
-                            <Navigate to={"/sign-in"} replace />
-                        )
-                    }
-                />
+                <Route path="/" element={<Home />} />
 
                 <Route path="/sign-in" element={<SignIn />} />
 
                 <Route path="/sign-up" element={<SignUp />} />
 
-                <Route
-                    path="/settings"
-                    element={
-                        authUser ? (
-                            <Settings />
-                        ) : (
-                            <Navigate to={"/sign-in"} replace />
-                        )
-                    }
-                />
+                <Route path="/settings" element={<Settings />} />
 
-                <Route
-                    path="/profile"
-                    element={
-                        authUser ? (
-                            <ProfilePage />
-                        ) : (
-                            <Navigate to={"/"} replace />
-                        )
-                    }
-                />
+                <Route path="/profile" element={<ProfilePage />} />
             </Routes>
         </main>
     )

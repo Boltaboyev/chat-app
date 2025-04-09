@@ -9,6 +9,8 @@ const ProfilePage = () => {
         const formData = new FormData()
         formData.append("image", file)
         updatePhoto(formData)
+        console.log(formData, "form data");
+        
     }
 
     return (
@@ -55,8 +57,8 @@ const ProfilePage = () => {
                             Full Name
                         </div>
                         <p className="px-4 py-2.5 bg-base-200 rounded-lg border">
-                            {/* {authUser?.fullName} */}
-                            Otabek Boltaboyev
+                            {authUser?.fullName}
+                            {/* Otabek Boltaboyev */}
                         </p>
                     </div>
 
@@ -66,8 +68,8 @@ const ProfilePage = () => {
                             Email Address
                         </div>
                         <p className="px-4 py-2.5 bg-base-200 rounded-lg border">
-                            {/* {authUser?.email} */}
-                            otabek@mail.ru
+                            {authUser?.email}
+                            {/* otabek@mail.ru */}
                         </p>
                     </div>
                 </div>
